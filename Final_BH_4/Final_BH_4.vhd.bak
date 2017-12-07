@@ -1,0 +1,190 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+
+use IEEE.STD_LOGIC_ARITH.all;
+use IEEE.STD_LOGIC_UNSIGNED.all;
+
+entity final_BH_4 is
+	port (
+		reset : in std_logic;
+		addMoney, address0, address1, address2, address3, purchase : in std_logic; -- address0 is MSB; address3 is LSB
+		f, money, error : out std_logic); -- output to detect two 1s	
+end final_BH_4;
+
+architecture beh of final_BH_4 is
+	type INT_ARRAY is array (15 downto 0) of integer;
+	type state_type is (STATE_A, STATE_B, STATE_C, STATE_D, STATE_E);  -- enumeration to hold our states
+	signal state : state_type := STATE_A;
+	signal priceArray : INT_ARRAY;
+	signal qtyArray : INT_ARRAY;
+	shared variable totalMoney : integer;
+	shared variable address : integer;
+begin		
+	vending: process (reset, addMoney, purchase)
+	begin
+		qtyArray <= (14,3,5,2,4,8,7,5,10,13,14,2,9,1,0,2);
+		priceArray <= (4,13,15,12,14,0,9,2,1,3,4,5,7,10,6,3);
+		
+		if reset = '1' then
+			f <= '0';
+			state <= STATE_A;
+	
+	case state is
+			when STATE_A =>
+				error <= '0';
+				f <= '0';
+				totalMoney := 0;
+				
+				if addMoney = '1' then
+					state <= STATE_B;
+				elsif purchase = '1' then
+					state <= STATE_E;
+				end if;
+			when STATE_B =>
+				error <= '0';
+				f <= '0';
+				totalMoney := totalMoney + 1;
+				
+				if totalMoney = 9 then -- maximum money allowed
+					state <= STATE_C;
+				elsif purchase	= '1' then
+					if address0 = '0' and address1 = '0' and address2 = '0' and address3 = '0' then
+						address := 0;
+					elsif address0 = '0' and address1 = '0' and address2 = '0' and address3 = '1' then
+						address := 1;
+					elsif address0 = '0' and address1 = '0' and address2 = '1' and address3 = '0' then
+						address := 2;
+					elsif address0 = '0' and address1 = '0' and address2 = '1' and address3 = '1' then
+						address := 3;
+					elsif address0 = '0' and address1 = '1' and address2 = '0' and address3 = '0' then
+						address := 4;
+					elsif address0 = '0' and address1 = '1' and address2 = '0' and address3 = '1' then
+						address := 5;
+					elsif address0 = '0' and address1 = '1' and address2 = '1' and address3 = '0' then
+						address := 6;
+					elsif address0 = '0' and address1 = '1' and address2 = '1' and address3 = '1' then
+						address := 7;
+					elsif address0 = '1' and address1 = '0' and address2 = '0' and address3 = '0' then
+						address := 8;
+					elsif address0 = '1' and address1 = '0' and address2 = '0' and address3 = '1' then
+						address := 9;
+					elsif address0 = '1' and address1 = '0' and address2 = '1' and address3 = '0' then
+						address := 10;
+					elsif address0 = '1' and address1 = '0' and address2 = '1' and address3 = '1' then
+						address := 11;
+					elsif address0 = '1' and address1 = '1' and address2 = '0' and address3 = '0' then
+						address := 12;
+					elsif address0 = '1' and address1 = '1' and address2 = '0' and address3 = '1' then
+						address := 13;
+					elsif address0 = '1' and address1 = '1' and address2 = '1' and address3 = '0' then
+						address := 14;
+					elsif address0 = '1' and address1 = '1' and address2 = '1' and address3 = '1' then
+						address := 15;
+					end if;
+					
+					if((qtyArray(address) > 0) AND (priceArray(address) <= totalMoney)) then -- quantity is available
+						state <= STATE_D;
+					else
+						state <= STATE_E;
+					end if;
+				end if;
+			when STATE_C =>
+				error <= '0';
+				f <= '0';
+				
+				if purchase = '1'	then
+					if address0 = '0' and address1 = '0' and address2 = '0' and address3 = '0' then
+						address := 0;
+					elsif address0 = '0' and address1 = '0' and address2 = '0' and address3 = '1' then
+						address := 1;
+					elsif address0 = '0' and address1 = '0' and address2 = '1' and address3 = '0' then
+						address := 2;
+					elsif address0 = '0' and address1 = '0' and address2 = '1' and address3 = '1' then
+						address := 3;
+					elsif address0 = '0' and address1 = '1' and address2 = '0' and address3 = '0' then
+						address := 4;
+					elsif address0 = '0' and address1 = '1' and address2 = '0' and address3 = '1' then
+						address := 5;
+					elsif address0 = '0' and address1 = '1' and address2 = '1' and address3 = '0' then
+						address := 6;
+					elsif address0 = '0' and address1 = '1' and address2 = '1' and address3 = '1' then
+						address := 7;
+					elsif address0 = '1' and address1 = '0' and address2 = '0' and address3 = '0' then
+						address := 8;
+					elsif address0 = '1' and address1 = '0' and address2 = '0' and address3 = '1' then
+						address := 9;
+					elsif address0 = '1' and address1 = '0' and address2 = '1' and address3 = '0' then
+						address := 10;
+					elsif address0 = '1' and address1 = '0' and address2 = '1' and address3 = '1' then
+						address := 11;
+					elsif address0 = '1' and address1 = '1' and address2 = '0' and address3 = '0' then
+						address := 12;
+					elsif address0 = '1' and address1 = '1' and address2 = '0' and address3 = '1' then
+						address := 13;
+					elsif address0 = '1' and address1 = '1' and address2 = '1' and address3 = '0' then
+						address := 14;
+					elsif address0 = '1' and address1 = '1' and address2 = '1' and address3 = '1' then
+						address := 15;
+					end if;
+					
+					if((qtyArray(address) > 0) AND (priceArray(address) <= totalMoney)) then -- quantity is available
+						state <= STATE_D;
+					else
+						state <= STATE_E;
+					end if;
+				end if;
+			when STATE_D =>
+				error <= '0';
+				f <= '1';
+				
+				if address0 = '0' and address1 = '0' and address2 = '0' and address3 = '0' then
+					address := 0;
+				elsif address0 = '0' and address1 = '0' and address2 = '0' and address3 = '1' then
+					address := 1;
+				elsif address0 = '0' and address1 = '0' and address2 = '1' and address3 = '0' then
+					address := 2;
+				elsif address0 = '0' and address1 = '0' and address2 = '1' and address3 = '1' then
+					address := 3;
+				elsif address0 = '0' and address1 = '1' and address2 = '0' and address3 = '0' then
+					address := 4;
+				elsif address0 = '0' and address1 = '1' and address2 = '0' and address3 = '1' then
+					address := 5;
+				elsif address0 = '0' and address1 = '1' and address2 = '1' and address3 = '0' then
+					address := 6;
+				elsif address0 = '0' and address1 = '1' and address2 = '1' and address3 = '1' then
+					address := 7;
+				elsif address0 = '1' and address1 = '0' and address2 = '0' and address3 = '0' then
+					address := 8;
+				elsif address0 = '1' and address1 = '0' and address2 = '0' and address3 = '1' then
+					address := 9;
+				elsif address0 = '1' and address1 = '0' and address2 = '1' and address3 = '0' then
+					address := 10;
+				elsif address0 = '1' and address1 = '0' and address2 = '1' and address3 = '1' then
+					address := 11;
+				elsif address0 = '1' and address1 = '1' and address2 = '0' and address3 = '0' then
+					address := 12;
+				elsif address0 = '1' and address1 = '1' and address2 = '0' and address3 = '1' then
+					address := 13;
+				elsif address0 = '1' and address1 = '1' and address2 = '1' and address3 = '0' then
+					address := 14;
+				elsif address0 = '1' and address1 = '1' and address2 = '1' and address3 = '1' then
+					address := 15;
+				end if;
+				
+				totalMoney := totalMoney - priceArray(address);
+				qtyArray(address) <= qtyArray(address) - 1;
+				
+				if totalMoney = 9 then
+					state <= STATE_C;
+				else
+					state <= STATE_B;
+				end if;
+				
+			when STATE_E =>
+				error <= '1';
+			when others => 
+				null;
+		end case;
+		end if;
+	end process vending;
+end beh;

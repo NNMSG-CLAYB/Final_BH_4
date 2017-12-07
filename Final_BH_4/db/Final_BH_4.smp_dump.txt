@@ -1,0 +1,9 @@
+
+State Machine - |Final_BH_4|state
+Name state.STATE_F state.STATE_E state.STATE_D state.STATE_C state.STATE_B state.STATE_A 
+state.STATE_A 0 0 0 0 0 0 
+state.STATE_B 0 0 0 0 1 1 
+state.STATE_C 0 0 0 1 0 1 
+state.STATE_D 0 0 1 0 0 1 
+state.STATE_E 0 1 0 0 0 1 
+state.STATE_F 1 0 0 0 0 1 
